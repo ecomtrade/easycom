@@ -72,26 +72,16 @@ export default {
             await db.Category.findOne({ where: { id: id } })
                 .then(data => {
                     if (data) {
-                        let updateDate;
+                        let updateDate = { 
+                            title: title,
+                            slug: slug,
+                            summary: summary,
+                            isParent: isParent,
+                            parentId: isParent == 'false' ? parentCategory : 0,
+                            status: status == '1' ? 'active' : 'inactive'
+                        };
                         if (req.file) {
-                            updateDate = { 
-                                title: title,
-                                slug: slug,
-                                summary: summary,
-                                photo: req.file.path,
-                                isParent: isParent,
-                                parentId: isParent == 'false' ? parentCategory : 0,
-                                status: status == '1' ? 'active' : 'inactive'
-                            };
-                        } else {
-                            updateDate = { 
-                                title: title,
-                                slug: slug,
-                                summary: summary,
-                                isParent: isParent,
-                                parentId: isParent == 'false' ? parentCategory : 0,
-                                status: status == '1' ? 'active' : 'inactive'
-                            };
+                            updateDate['photo'] = req.file.path;
                         }
                         return db.Category.update(updateDate, { where: { id: data.id } });
                     } else {

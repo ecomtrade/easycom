@@ -57,7 +57,7 @@ export default {
                 await db.Product.findOne({ where: { id: parseInt(req.params.id) } })
                 .then(async data => {
                     if (data) {
-                        await db.Product.destroy({ where: { [Op.or]: [{ id: data.id }, { parentId: data.id }], } })
+                        await db.Product.destroy({ where: { id: data.id } })
                     } else {
                         res.status(400).json({ 'success': false, message: "Record does not exists" });
                     }
@@ -75,30 +75,27 @@ export default {
     },
     async getMainListUpdate(req, res, next) {
         try {
-            const { id, title, slug, summary, isParent, parentCategory, photo, status } = req.body;
+            const { id, title, subTitle, slug, qty, price, discount, summary, description,  isFeatured, catId, brandId, status } = req.body;
             await db.Product.findOne({ where: { id: id } })
                 .then(data => {
                     if (data) {
-                        let updateDate;
+                        let updateDate = { 
+                            title: title,
+                            subTitle: subTitle,
+                            slug: slug,
+                            summary: summary,
+                            description: description,
+                            qty: qty,
+                            price: price,
+                            discount: discount,
+                            sellingPrice: parseFloat(parseInt(price) - (parseInt(price) * parseFloat(discount) / 100)),
+                            isFeatured: isFeatured,
+                            catId: catId,
+                            brandId: brandId,
+                            status: status == '1' ? 'active' : 'inactive'                                
+                        };
                         if (req.file) {
-                            updateDate = { 
-                                title: title,
-                                slug: slug,
-                                summary: summary,
-                                photo: req.file.path,
-                                isParent: isParent,
-                                parentId: isParent == 'false' ? parentCategory : 0,
-                                status: status == '1' ? 'active' : 'inactive'
-                            };
-                        } else {
-                            updateDate = { 
-                                title: title,
-                                slug: slug,
-                                summary: summary,
-                                isParent: isParent,
-                                parentId: isParent == 'false' ? parentCategory : 0,
-                                status: status == '1' ? 'active' : 'inactive'
-                            };
+                            updateDate['photo'] = req.file.path
                         }
                         return db.Product.update(updateDate, { where: { id: data.id } });
                     } else {

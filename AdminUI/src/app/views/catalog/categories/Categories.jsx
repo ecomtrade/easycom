@@ -49,15 +49,15 @@ const Category = (props) => {
 
     const [isAlive, setIsAlive] = useState(true)
     const [categoryList, setCategoryList] = useState([])
-    const [categoryId, setCategoryId] = useState()
+    const [categoryData, setCategoryData] = useState()
 
     const [open, setOpen] = useState(false)
     const [loader, setLoader] = useState(false)
     const theme = useTheme()
     const fullScreen = useMediaQuery(theme.breakpoints.down('sm'))
 
-    const handleClickOpen = (id) => {
-        setCategoryId(id)
+    const handleClickOpen = (category) => {
+        setCategoryData(category)
         setOpen(true)
     }
 
@@ -120,18 +120,21 @@ const Category = (props) => {
                     aria-labelledby="responsive-dialog-title"
                 >
                     <DialogTitle id="responsive-dialog-title">
-                        Are you sure you want to delete this category ?
+                        Permanently delete your category?
                     </DialogTitle>
                     <DialogContent>
                         <DialogContentText>
-                            If you remove this category, then it will remove all products related to this category.
+                            {categoryData && categoryData.title} category deletion is permanent and you won't be able to  undo it.
+                            <DialogContentText>
+                                If you remove this category, then it will remove all products related to this category.
+                            </DialogContentText>
                         </DialogContentText>
                     </DialogContent>
                     <DialogActions>
                         <Buttons onClick={handleClose} color="primary">
                             Disagree
                         </Buttons>
-                        <Buttons onClick={() => handlDeleteById(categoryId)} color="primary" autoFocus>
+                        <Buttons onClick={() => handlDeleteById(categoryData && categoryData.id)} color="primary" autoFocus>
                             Agree
                         </Buttons>
                     </DialogActions>
@@ -258,7 +261,7 @@ const Category = (props) => {
                                                 </Tooltip>
                                             </Link>
                                             <Tooltip title="Delete">
-                                                <IconButton aria-label="delete" onClick={() => handleClickOpen(subscriber.id)}>
+                                                <IconButton aria-label="delete" onClick={() => handleClickOpen(subscriber)}>
                                                     <Icon color="error">close</Icon>
                                                 </IconButton>
                                             </Tooltip>

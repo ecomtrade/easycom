@@ -26,7 +26,7 @@ import {
 
 import { makeStyles } from '@material-ui/core/styles'
 import { Link } from 'react-router-dom'
-import { getProductList, deleteProductList } from '../../../redux/actions/EcommerceActions'
+import { getProductList, deleteProductList, getCategoryList, getBrandList } from '../../../redux/actions/EcommerceActions'
 
 
 const useStyles = makeStyles((theme) => ({
@@ -48,16 +48,19 @@ const Product = (props) => {
     const [page, setPage] = useState(0)
 
     const [isAlive, setIsAlive] = useState(true)
+    const [productList, setProductList] = useState([])
     const [categoryList, setCategoryList] = useState([])
-    const [categoryId, setCategoryId] = useState()
+    const [brandList, setBrandList] = useState([])
+    const [productData, setProductData] = useState()
 
     const [open, setOpen] = useState(false)
     const [loader, setLoader] = useState(false)
     const theme = useTheme()
     const fullScreen = useMediaQuery(theme.breakpoints.down('sm'))
 
-    const handleClickOpen = (id) => {
-        setCategoryId(id)
+    const handleClickOpen = (product) => {
+        console.log('productproductproduct',product);
+        setProductData(product)
         setOpen(true)
     }
 
@@ -66,7 +69,7 @@ const Product = (props) => {
     }
 
     useEffect(() => {
-        getProducts()
+        getProducts();
         return () => setIsAlive(false)
     }, [isAlive])
 
@@ -89,8 +92,22 @@ const Product = (props) => {
     const getProducts = async () => {
         setLoader(true);
         await getProductList().then((res) => {
-            if (isAlive) setCategoryList(res.data && res.data)
+            if (isAlive) setProductList(res.data && res.data)
+            getCategories();
+            getBrands();
             setLoader(false);
+        })
+    }
+
+    const getCategories = async () => {
+        await getCategoryList().then((res) => {
+            if (isAlive) setCategoryList(res.data && res.data)
+        })
+    }
+
+    const getBrands = async () => {
+        await getBrandList().then((res) => {
+            if (isAlive) setBrandList(res.data && res.data)
         })
     }
 
@@ -120,18 +137,18 @@ const Product = (props) => {
                     aria-labelledby="responsive-dialog-title"
                 >
                     <DialogTitle id="responsive-dialog-title">
-                        Are you sure you want to delete this product ?
+                        Permanently delete your product?
                     </DialogTitle>
                     <DialogContent>
                         <DialogContentText>
-                            If you remove this product, then it will remove all products related to this product.
+                            {productData && productData.title} product deletion is permanent and you won't be able to  undo it
                         </DialogContentText>
                     </DialogContent>
                     <DialogActions>
                         <Buttons onClick={handleClose} color="primary">
                             Disagree
                         </Buttons>
-                        <Buttons onClick={() => handlDeleteById(categoryId)} color="primary" autoFocus>
+                        <Buttons onClick={() => handlDeleteById(productData && productData.id)} color="primary" autoFocus>
                             Agree
                         </Buttons>
                     </DialogActions>
@@ -142,7 +159,7 @@ const Product = (props) => {
                         className="btn btn-primary"
                         to={{
                             pathname: '/catalog/product/create',
-                            state: categoryList,
+                            state: productList,
                         }}
                     >
                         <Tooltip title="Add" aria-label="add">
@@ -169,20 +186,22 @@ const Product = (props) => {
                         <TableHead>
                             <TableRow>
                                 <TableCell className="px-0">Title</TableCell>
+                                {/* <TableCell className="px-0">Sub Title</TableCell> */}
                                 <TableCell className="px-0">Slug</TableCell>
-                                <TableCell className="px-0">
-                                    Is Parent
-                                </TableCell>
-                                <TableCell className="px-0">
-                                    Parent Product
-                                </TableCell>
+                                <TableCell className="px-0">Featured</TableCell>
+                                <TableCell className="px-0">Category</TableCell>
+                                <TableCell className="px-0">Brand</TableCell>
+                                <TableCell className="px-0">Qty</TableCell>
+                                <TableCell className="px-0">Price</TableCell>
+                                <TableCell className="px-0">Sell Price</TableCell>
+                                <TableCell className="px-0">Discount</TableCell>
                                 <TableCell className="px-0">Image</TableCell>
                                 <TableCell className="px-0">Status</TableCell>
                                 <TableCell className="px-0">Action</TableCell>
                             </TableRow>
                         </TableHead>
                         <TableBody>
-                            {categoryList
+                            {productList
                                 .slice(
                                     page * rowsPerPage,
                                     page * rowsPerPage + rowsPerPage
@@ -195,6 +214,12 @@ const Product = (props) => {
                                         >
                                             {subscriber.title}
                                         </TableCell>
+                                        {/* <TableCell
+                                            className="px-0 capitalize"
+                                            align="left"
+                                        >
+                                            {subscriber.subTitle}
+                                        </TableCell> */}
                                         <TableCell
                                             className="px-0"
                                             align="left"
@@ -205,13 +230,43 @@ const Product = (props) => {
                                             className="px-0"
                                             align="left"
                                         >
-                                            {subscriber.isParent ? 'Yes' : 'No'}
+                                            {subscriber.isFeatured ? 'Yes' : 'No'}
                                         </TableCell>
                                         <TableCell
                                             className="px-0 capitalize"
                                             align="left"
                                         >
-                                            {subscriber.isParent ? '---' : categoryList.map(cat => subscriber.parentId === cat.id && cat.title)}
+                                            {subscriber.catId == null ? '---' : categoryList.map(cat => subscriber.catId === cat.id && cat.title)}
+                                        </TableCell>
+                                        <TableCell
+                                            className="px-0 capitalize"
+                                            align="left"
+                                        >
+                                            {subscriber.brandId == null ? '---' : brandList.map(brand => subscriber.brandId === brand.id && brand.title)}
+                                        </TableCell>
+                                        <TableCell
+                                            className="px-0"
+                                            align="left"
+                                        >
+                                            {subscriber.qty}
+                                        </TableCell>
+                                        <TableCell
+                                            className="px-0"
+                                            align="left"
+                                        >
+                                            {subscriber.price}
+                                        </TableCell>
+                                        <TableCell
+                                            className="px-0"
+                                            align="left"
+                                        >
+                                            {subscriber.sellingPrice}
+                                        </TableCell>
+                                        <TableCell
+                                            className="px-0"
+                                            align="left"
+                                        >
+                                            {subscriber.discount}%
                                         </TableCell>
                                         <TableCell
                                             className="px-0"
@@ -245,7 +300,7 @@ const Product = (props) => {
                                                     pathname: `/catalog/product/edit/${subscriber.id}`,
                                                     state: {
                                                         data: subscriber,
-                                                        categoryList,
+                                                        productList,
                                                     },
                                                 }}
                                             >
@@ -258,7 +313,7 @@ const Product = (props) => {
                                                 </Tooltip>
                                             </Link>
                                             <Tooltip title="Delete">
-                                                <IconButton aria-label="delete" onClick={() => handleClickOpen(subscriber.id)}>
+                                                <IconButton aria-label="delete" onClick={() => handleClickOpen(subscriber)}>
                                                     <Icon color="error">close</Icon>
                                                 </IconButton>
                                             </Tooltip>
@@ -272,7 +327,7 @@ const Product = (props) => {
                         rowsPerPageOptions={[5, 10, 25, { label: 'All', value: -1 }]}
                         colSpan={3}
                         component="div"
-                        count={categoryList.length}
+                        count={productList.length}
                         rowsPerPage={rowsPerPage}
                         page={page}
                         SelectProps={{
