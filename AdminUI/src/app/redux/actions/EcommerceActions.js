@@ -1,10 +1,10 @@
 import axios from 'axios'
 import { Apis } from '../../config'
 import { authHeaders } from '../../common/handler'
-export const GET_PRODUCT_LIST = 'GET_PRODUCT_LIST'
 export const GET_CART_LIST = 'GET_CART_LIST'
 export const GET_BRAND_LIST = 'GET_BRAND_LIST'
 
+// Category API
 export const getCategoryList = async () => {
     try {
         const response = await axios.get(Apis.GetAllCategoryList, authHeaders())
@@ -21,7 +21,6 @@ export const createCategoryList = async (data) => {
         throw e
     }
 }
-
 export const deleteCategoryList = async (id) => {
     try {
         const response = await axios.delete(`${Apis.DeleteCategory}/${id}`, authHeaders())
@@ -38,13 +37,15 @@ export const updateCategoryList = async (data) => {
         throw e
     }
 }
-export const getProductList = () => (dispatch) => {
-    axios.get(Apis.GetAllProductList, authHeaders()).then((res) => {
-        return dispatch({
-            type: GET_PRODUCT_LIST,
-            payload: res.data,
-        })
-    })
+
+// Product API
+export const getProductList = async () => {
+    try {
+        const response = await axios.get(Apis.GetAllProductList, authHeaders())
+        return response.data
+    } catch (e) {
+        throw e
+    }
 }
 export const createProductList = async (data) => {
     try {
@@ -54,7 +55,6 @@ export const createProductList = async (data) => {
         throw e
     }
 }
-
 export const deleteProductList = async (id) => {
     try {
         const response = await axios.delete(`${Apis.DeleteProduct}/${id}`, authHeaders())
@@ -71,3 +71,14 @@ export const updateProductList = async (data) => {
         throw e
     }
 }
+
+// Brands API
+export const getBrandList = async () => {
+    try {
+        const response = await axios.get(Apis.GetAllBrandList, authHeaders())
+        return response.data
+    } catch (e) {
+        throw e
+    }
+}
+

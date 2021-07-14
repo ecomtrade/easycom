@@ -131,6 +131,7 @@ const AddCategory = (props) => {
                                         className="mb-4 w-full"
                                         name="status"
                                         label="Status"
+                                        isObj={true}
                                         options={statusList}
                                     />
                                     {categoryList.length > 0 && <Checkbox
@@ -214,6 +215,7 @@ const AddCategory = (props) => {
                                             className="mb-4 w-full"
                                             name="parentCategory"
                                             label="Parent Category"
+                                            isObj={false}
                                             options={categoryList}
                                         />
                                     )}

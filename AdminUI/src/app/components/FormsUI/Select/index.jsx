@@ -27,8 +27,7 @@ const SelectWrapper = ({ name, options, ...otherProps }) => {
 
     return (
         <TextField {...configSelect}>
-            {name !== 'parentCategory'
-                ? Object.keys(options).map((item, index) => {
+            {otherProps.isObj ? Object.keys(options).map((item, index) => {
                       return (
                           <MenuItem key={index} value={item}>
                               {options[item]}

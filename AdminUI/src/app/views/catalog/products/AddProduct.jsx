@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import React, { useState, useEffect } from 'react'
 import { Breadcrumb, Snackbar } from 'app/components'
 import { Formik, Form } from 'formik'
 import * as Yup from 'yup'
@@ -7,40 +7,47 @@ import Textfield from '../../../components/FormsUI/Textfiled'
 import Select from '../../../components/FormsUI/Select'
 import Checkbox from '../../../components/FormsUI/Checkbox'
 import Button from '../../../components/FormsUI/Button'
-import { createCategoryList } from '../../../redux/actions/EcommerceActions'
+import {
+    getCategoryList,
+    createProductList,
+    getBrandList,
+} from '../../../redux/actions/EcommerceActions'
 
 const statusList = { 0: 'Inactive', 1: 'Active' }
 
-const requiredForParentCategory = (requiredText) => ({
-    is: false,
-    then: Yup.string().required(requiredText),
-})
-
 const FORM_VALIDATION = Yup.object().shape({
     title: Yup.string().required('Title is required'),
+    subTitle: Yup.string().required('Sub Title is required'),
     slug: Yup.string().required('Slug is required'),
     summary: Yup.string(),
+    description: Yup.string().required('Description is required'),
     photo: Yup.string(),
-    isParent: Yup.boolean(),
-    parentCategory: Yup.string().when(
-        'isParent',
-        requiredForParentCategory(
-            "If it's not a parent category then choose the parent one"
-        )
-    ),
+    qty: Yup.number().required('Quantity is required'),
+    price: Yup.number().required('Price is required'),
+    discount: Yup.number().required('Discount is required'),
+    isFeatured: Yup.boolean(),
+    catId: Yup.string().required('Category must select'),
+    brandId: Yup.string(),
     status: Yup.string().required('Required'),
 })
 
 const AddProduct = (props) => {
-    const categoryList = props.location.state
-
+    const [isAlive, setIsAlive] = useState(true)
+    const [categoryList, setCategoryList] = useState([])
+    const [brandList, setBrandList] = useState([])
     const [state, setState] = useState({
         title: '',
+        subTitle: '',
         slug: '',
-        summary: 'Describe your category',
+        summary: 'Describe your product',
+        description: '',
         photo: '',
-        isParent: false,
-        parentCategory: 0,
+        qty: 0,
+        price: 0,
+        discount: 0,
+        isFeatured: false,
+        catId: 0,
+        brandId: 0,
         status: 1,
         imgSrc: [],
     })
@@ -48,16 +55,34 @@ const AddProduct = (props) => {
     const [openSnack, setOpenSnack] = useState({
         open: false,
         message: '',
-        variant: ''
+        variant: '',
     })
+
+    useEffect(() => {
+        getCategories();
+        getBrands();
+        return () => setIsAlive(false)
+    }, [isAlive])
+
+    const getCategories = async () => {
+        await getCategoryList().then((res) => {
+            if (isAlive) setCategoryList(res.data && res.data)
+        })
+    }
+
+    const getBrands = async () => {
+        await getBrandList().then((res) => {
+            if (isAlive) setBrandList(res.data && res.data)
+        })
+    }
 
     return (
         <div className="m-sm-30">
             <div className="mb-sm-30">
                 <Breadcrumb
                     routeSegments={[
-                        { name: 'Categories', path: '/catalog/category' },
-                        { name: 'Add Category' },
+                        { name: 'Products', path: '/catalog/product' },
+                        { name: 'Add Product' },
                     ]}
                 />
             </div>
@@ -79,27 +104,38 @@ const AddProduct = (props) => {
                         console.log('onSubmitonSubmit', values)
 
                         let data = new FormData()
-                        data.append('photo', (typeof values.photo !== 'object') ? "" : values.photo)
+                        data.append(
+                            'photo',
+                            typeof values.photo !== 'object' ? '' : values.photo
+                        )
                         data.append('title', values.title)
+                        data.append('subTitle', values.subTitle)
                         data.append('slug', values.slug)
+                        data.append('qty', values.qty)
+                        data.append('price', values.price)
+                        data.append('discount', values.discount)
                         data.append('summary', values.summary)
-                        data.append('isParent', values.isParent)
-                        data.append('parentCategory', values.parentCategory)
+                        data.append('description', values.description)
+                        data.append('isFeatured', values.isFeatured)
+                        data.append('catId', values.catId)
+                        data.append('brandId', values.brandId)
                         data.append('status', values.status)
 
-                        await createCategoryList(data).then((res) => {
-                            props.history.push('/catalog/category', {
-                                isSnack: true,
-                                message: res.message
-                            });
-                        }).catch((err) => {
-                            console.log('Category Error:: ', err.message);
-                            setOpenSnack({
-                                open: true,
-                                message: err.message,
-                                variant: 'error'
+                        await createProductList(data)
+                            .then((res) => {
+                                props.history.push('/catalog/product', {
+                                    isSnack: true,
+                                    message: res.message,
+                                })
                             })
-                        })
+                            .catch((err) => {
+                                console.log('Product Error:: ', err.message)
+                                setOpenSnack({
+                                    open: true,
+                                    message: err.message,
+                                    variant: 'error',
+                                })
+                            })
                     }}
                 >
                     {({
@@ -124,30 +160,60 @@ const AddProduct = (props) => {
 
                                     <Textfield
                                         className="mb-4 w-full"
+                                        name="subTitle"
+                                        label="Sub Title"
+                                    />
+
+                                    <Textfield
+                                        className="mb-4 w-full"
                                         name="slug"
                                         label="Slug"
                                     />
+
                                     <Select
                                         className="mb-4 w-full"
                                         name="status"
                                         label="Status"
+                                        isObj={true}
                                         options={statusList}
                                     />
-                                    {categoryList.length > 0 && <Checkbox
+
+                                    <Checkbox
                                         className="w-full"
-                                        name="isParent"
-                                        legend="Is Parent?"
+                                        name="isFeatured"
+                                        legend="Is Feature?"
                                         label="Yes"
-                                        checked={values.isParent}
-                                    />}
-                                </Grid>
-                                <Grid item lg={6} md={6} sm={12} xs={12}>
+                                        checked={values.isFeatured}
+                                    />
+
                                     <Textfield
                                         className="mb-4 w-full"
                                         name="summary"
                                         label="Summary"
                                         multiline
                                         rows={5}
+                                    />
+                                </Grid>
+                                <Grid item lg={6} md={6} sm={12} xs={12}>
+                                    <Textfield
+                                        className="mb-4 w-full"
+                                        name="qty"
+                                        label="Quantity"
+                                        type="number"
+                                    />
+
+                                    <Textfield
+                                        className="mb-4 w-full"
+                                        name="price"
+                                        label="Price"
+                                        type="number"
+                                    />
+
+                                    <Textfield
+                                        className="mb-4 w-full"
+                                        name="discount"
+                                        label="Discount%"
+                                        type="number"
                                     />
 
                                     <Grid container spacing={6}>
@@ -178,13 +244,21 @@ const AddProduct = (props) => {
                                                             'photo',
                                                             event.target
                                                                 .files[0]
-                                                        );
-                                                       
-                                                        let reader = new FileReader();
-                                                        reader.readAsDataURL(event.target.files[0]);
-                                                        reader.onloadend = (e) => {
+                                                        )
+
+                                                        let reader =
+                                                            new FileReader()
+                                                        reader.readAsDataURL(
+                                                            event.target
+                                                                .files[0]
+                                                        )
+                                                        reader.onloadend = (
+                                                            e
+                                                        ) => {
                                                             setState({
-                                                                imgSrc: [reader.result],
+                                                                imgSrc: [
+                                                                    reader.result,
+                                                                ],
                                                             })
                                                         }
                                                     }}
@@ -209,23 +283,41 @@ const AddProduct = (props) => {
                                         </Grid>
                                     </Grid>
 
-                                    {!values.isParent && (
+                                    {categoryList.length > 0 && (
                                         <Select
                                             className="mb-4 w-full"
-                                            name="parentCategory"
-                                            label="Parent Category"
+                                            name="catId"
+                                            label="Category"
+                                            isObj={false}
                                             options={categoryList}
                                         />
                                     )}
-                                    {/* <DateTimePicker
-                                    className="mb-4 w-full"
-                                    name="date"
-                                    label="Date"
-                                /> */}
+
+                                    {brandList.length > 0 && (
+                                        <Select
+                                            className="mb-4 w-full"
+                                            name="brandId"
+                                            label="Brand"
+                                            isObj={false}
+                                            options={brandList}
+                                        />
+                                    )}
                                 </Grid>
                             </Grid>
-
-                            <Button>
+                            <Grid item lg={12} md={12} sm={12} xs={12}>
+                                <Textfield
+                                    className="w-full"
+                                    name="description"
+                                    label="Description"
+                                    richTextEdit={true}
+                                    content={values.description}
+                                    handleContentChange={(desc) =>
+                                        setFieldValue('description', desc)
+                                    }
+                                    placeholder="Detailed descriptions here..."
+                                />
+                            </Grid>
+                            <Button className="mt-4">
                                 <Icon>send</Icon>
                                 <span className="pl-2 capitalize">Create</span>
                             </Button>

@@ -35,6 +35,9 @@ module.exports = {
       price: {
         type: Sequelize.DOUBLE(8,2)
       },
+      sellingPrice: {
+        type: Sequelize.DOUBLE(8,2)
+      },
       discount: {
         type: Sequelize.DOUBLE(8,2)
       },

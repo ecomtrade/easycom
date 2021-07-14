@@ -1,4 +1,5 @@
 import React from 'react'
+import { RichTextEditor } from 'app/components'
 import { TextField } from "@material-ui/core";
 import { useField } from "formik";
 
@@ -20,9 +21,7 @@ const TextfiledWrapper = ({
         configTextfield.helperText = meta.error; // error message show
     }
 
-    return (
-        <TextField {...configTextfield} />
-    )
+    return (otherProps.richTextEdit ? (<RichTextEditor {...configTextfield} />) : (<TextField {...configTextfield} />))
 }
 
 export default TextfiledWrapper;

@@ -66,7 +66,7 @@ const Product = (props) => {
     }
 
     useEffect(() => {
-        getCategories()
+        getProducts()
         return () => setIsAlive(false)
     }, [isAlive])
 
@@ -81,14 +81,14 @@ const Product = (props) => {
 
     const handlDeleteById = async (id) => {
         setOpen(false)
-        await deleteCategoryList(id).then((res) => {
-            getCategories();
+        await deleteProductList(id).then((res) => {
+            getProducts();
         })
     }
 
-    const getCategories = async () => {
+    const getProducts = async () => {
         setLoader(true);
-        await getCategoryList().then((res) => {
+        await getProductList().then((res) => {
             if (isAlive) setCategoryList(res.data && res.data)
             setLoader(false);
         })
@@ -100,8 +100,8 @@ const Product = (props) => {
                 <div>
                     <Breadcrumb
                         routeSegments={[
-                            { name: 'Catalog', path: '/catalog/category' },
-                            { name: 'Categories' },
+                            { name: 'Catalog', path: '/catalog/product' },
+                            { name: 'Products' },
                         ]}
                     />
                 </div>
@@ -120,11 +120,11 @@ const Product = (props) => {
                     aria-labelledby="responsive-dialog-title"
                 >
                     <DialogTitle id="responsive-dialog-title">
-                        Are you sure you want to delete this category ?
+                        Are you sure you want to delete this product ?
                     </DialogTitle>
                     <DialogContent>
                         <DialogContentText>
-                            If you remove this category, then it will remove all products related to this category.
+                            If you remove this product, then it will remove all products related to this product.
                         </DialogContentText>
                     </DialogContent>
                     <DialogActions>
@@ -141,7 +141,7 @@ const Product = (props) => {
                     <Link
                         className="btn btn-primary"
                         to={{
-                            pathname: '/catalog/category/create',
+                            pathname: '/catalog/product/create',
                             state: categoryList,
                         }}
                     >
@@ -242,7 +242,7 @@ const Product = (props) => {
                                             <Link
                                                 className="btn btn-primary"
                                                 to={{
-                                                    pathname: `/catalog/category/edit/${subscriber.id}`,
+                                                    pathname: `/catalog/product/edit/${subscriber.id}`,
                                                     state: {
                                                         data: subscriber,
                                                         categoryList,

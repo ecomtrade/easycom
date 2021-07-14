@@ -5,7 +5,7 @@ export default {
     async addProduct(req, res, next) {
         try {
             console.log('req.bodyreq.body', req.body)
-            const { title, slug, summary, isParent, parentCategory, photo, status } = req.body;
+            const { title, subTitle, slug, qty, price, discount, summary, description,  isFeatured, catId, brandId, status } = req.body;
             await db.Product.findOne({ where: { title: title } })
                 .then(data => {
                     if (data) {
@@ -13,11 +13,18 @@ export default {
                     }
                     return db.Product.create({ 
                         title: title,
+                        subTitle: subTitle,
                         slug: slug,
                         summary: summary,
+                        description: description,
                         photo: req.file ? req.file.path : '',
-                        isParent: isParent,
-                        parentId: isParent == 'false' ? parentCategory : 0,
+                        qty: qty,
+                        price: price,
+                        discount: discount,
+                        sellingPrice: parseFloat(parseInt(price) - (parseInt(price) * parseFloat(discount) / 100)),
+                        isFeatured: isFeatured,
+                        catId: catId,
+                        brandId: brandId,
                         status: status == '1' ? 'active' : 'inactive'
                     })
                 })

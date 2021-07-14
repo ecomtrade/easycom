@@ -13,22 +13,25 @@ const Apis = {
   GetDeleteUserList: `${API_URL}/api/auth/user/delete`,
 
 
-  //category api
+  // category api
   CreateCategoryList: `${API_URL}/api/category/create`,
   GetAllCategoryList: `${API_URL}/api/category/main-list`,
   UpdateCategoryList: `${API_URL}/api/category/main-list/update`,
   DeleteCategory: `${API_URL}/api/category/delete`,
 
-  //product api
-  CreateProductList: `${API_URL}/api/product/add`,
-  GetAllProductList: `${API_URL}/api/product/getAllproductList`,
-  UpdateProduct: `${API_URL}/api/product/update`,
+  // product api
+  CreateProductList: `${API_URL}/api/product/create`,
+  GetAllProductList: `${API_URL}/api/product/main-list`,
+  UpdateProduct: `${API_URL}/api/product/main-list/update`,
   DeleteProduct: `${API_URL}/api/product/delete`,
 
   GetProductById: `${API_URL}/api/product/getProductById`,
   GetProductPhotoDeleteById: `${API_URL}/api/product/aws/delete/photo`,
   GetUploadProductImage: `${API_URL}/api/product/upload-img`,
   GetAllProductPhoto: `${API_URL}/api/product/getAllPhoto`,
+
+  // brand api
+  GetAllBrandList: `${API_URL}/api/brand/main-list`,  
 
 };
 export { API_URL, Apis };

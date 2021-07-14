@@ -10,6 +10,7 @@ module.exports = (sequelize, DataTypes) => {
     qty: DataTypes.INTEGER,
     status: DataTypes.ENUM('active', 'inactive'),
     price: DataTypes.DOUBLE(8, 2),
+    sellingPrice: DataTypes.DOUBLE(8, 2),
     discount: DataTypes.DOUBLE(8, 2),
     isFeatured: DataTypes.BOOLEAN,
     catId: DataTypes.INTEGER,
